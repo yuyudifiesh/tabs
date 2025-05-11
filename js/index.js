@@ -1,10 +1,18 @@
-const VERSION = '1.2.5.20250510';
-const BETA = 'null';
+// version
+const VERSION = '1.2.8.20250511';
+const OW_VERSION = '1.0';
+const hsrl_VERSION = '1.0';
+const wall_VERSION = '1.0';
+const Beta_VERSION = 'Null';
 const WEATHER_API_KEY = '589658c57e30103630480b0a6f31c779';
 // 缓存对象
 const weatherCache = {};
 const poemCache = {};
 const stockCache = {};
+let timeClickCount = 0;
+let lastClickTime = 0;
+const CLICK_THRESHOLD = 10; // 需要点击的次数
+const TIME_WINDOW = 3000;   // 点击时间窗口（毫秒）
 // 敏感词列表
 const sensitiveLocations = ['tibet', 'formosa', 'Formosa', 'Tibet'];
 const sensitivePhrases = [
@@ -33,6 +41,89 @@ function updateDateTime() {
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
     document.getElementById('date-display').textContent = `${year} 年 ${month} 月 ${day} 日 ${weekday}`;
+}
+
+// 新增：处理时间点击事件
+function handleTimeClick() {
+    const now = Date.now();
+    
+    // 检查是否在时间窗口内
+    if (now - lastClickTime > TIME_WINDOW) {
+        // 重置计数器
+        timeClickCount = 1;
+    } else {
+        // 增加点击计数
+        timeClickCount++;
+    }
+    
+    // 更新最后点击时间
+    lastClickTime = now;
+    
+    // 显示点击反馈
+    showClickFeedback(timeClickCount);
+    
+    // 检查是否达到阈值
+    if (timeClickCount >= CLICK_THRESHOLD) {
+        clearAllCookies();
+        resetClickCounter();
+    }
+}
+
+// 新增：显示点击反馈
+function showClickFeedback(count) {
+    const timeDisplay = document.getElementById('time-display');
+    const dateDisplay = document.getElementById('date-display');
+    
+    // 添加点击反馈样式
+    timeDisplay.classList.add('clicked');
+    dateDisplay.classList.add('clicked');
+    
+    // 显示点击次数
+    dateDisplay.textContent = `(${count}/${CLICK_THRESHOLD}) ${dateDisplay.textContent}`;
+    
+    // 移除反馈样式
+    setTimeout(() => {
+        timeDisplay.classList.remove('clicked');
+        dateDisplay.classList.remove('clicked');
+        // 恢复原始日期显示
+        updateDateTime();
+    }, 300);
+}
+
+// 新增：清除所有cookies
+function clearAllCookies() {
+    // 显示确认对话框
+    if (!confirm('确定要清除所有Cookies吗？这将重置您的偏好设置。')) {
+        return;
+    }
+    
+    // 获取所有cookie名称
+    const cookies = document.cookie.split('; ');
+    
+    // 清除每个cookie
+    cookies.forEach(cookie => {
+        const name = cookie.split('=')[0];
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    });
+    
+    // 清除缓存
+    weatherCache = {};
+    poemCache = {};
+    stockCache = {};
+    
+    // 显示成功消息
+    alert('所有Cookies已清除！页面将在3秒后刷新。');
+    
+    // 3秒后刷新页面
+    setTimeout(() => {
+        window.location.reload();
+    }, 3000);
+}
+
+// 新增：重置点击计数器
+function resetClickCounter() {
+    timeClickCount = 0;
+    lastClickTime = 0;
 }
 
 // 计算两个日期之间的天数差
@@ -337,7 +428,7 @@ function generateDebugInfo() {
     
     return `debugsys start
 [Version]${VERSION}
-[b. ]${BETA}
+[b. ]${Beta_VERSION}
 [JS]github.com
 [CSS]tailwindcss
 [Markdown]Yes
@@ -345,8 +436,31 @@ function generateDebugInfo() {
 [Weather]OpenWeather
 [UA]${userAgent}`;
 }
+
+// 生成升级信息文本
+function generateUpdateInfo() {
+    const userAgent = navigator.userAgent;
     
-    // 新增：格式化股票数据为Markdown列表
+    return `Update Info:
+[Version]${VERSION}
+[OpenWeather]${OW_VERSION}
+[Hsrl]${hsrl_VERSION}
+[WallPaper]${wall_VERSION}
+[Addons_Ver]TestVersion
+[New]修复已知问题，提升体验。
+[UA]${userAgent}`;
+}
+
+// 生成帮助信息文本
+function generateHelpInfo() {
+    return `【疑难解答】
+[Version]${VERSION}
+[功能代码教程]<a href="https://yuyudifiesh.github.io/tabs/docs/teach.html">点击查看</a>
+[联系我们]sysyzspublic@outlook.com
+`;
+}
+    
+// 格式化股票数据为Markdown列表
 function formatStockData(stockData, stockCode) {
     if (!stockData) {
         return `<div class="text-red-500">无法获取股票 ${stockCode} 的数据</div>`;
@@ -415,7 +529,7 @@ function formatStockData(stockData, stockCode) {
 function replaceSpecialTags(text) {
     let result = text;
 
-    // 处理[hsrldm=xxxxxx]标签 - 新增功能
+    // 处理[hsrldm=xxxxxx]标签
     const stockTagRegex = /\[hsrldm=([^\]]+)\]/g;
     const stockMatches = result.match(stockTagRegex);
     
@@ -442,6 +556,20 @@ function replaceSpecialTags(text) {
     if (debugRegex.test(result)) {
         const debugInfo = generateDebugInfo();
         result = result.replace(debugRegex, `<pre class="debug-info bg-black/70 text-green-400 p-4 rounded my-4 font-mono text-sm whitespace-pre-wrap word-break-break-all">${debugInfo}</pre>`);
+    }
+
+    // 处理[update]标签
+    const updateRegex = /\[update\]/g;
+    if (updateRegex.test(result)) {
+        const updateInfo = generateUpdateInfo();
+        result = result.replace(updateRegex, `<pre class="update-info bg-black/70 text-green-400 p-4 rounded my-4 font-mono text-sm whitespace-pre-wrap word-break-break-all">${updateInfo}</pre>`);
+    }
+
+    // 处理[help]标签
+    const helpRegex = /\[help\]/g;
+    if (helpRegex.test(result)) {
+        const helpInfo = generateHelpInfo();
+        result = result.replace(helpRegex, `<pre class="help-info bg-black/70 text-green-400 p-4 rounded my-4 font-mono text-sm whitespace-pre-wrap word-break-break-all">${helpInfo}</pre>`);
     }
 
     // 处理[times]标签
@@ -560,6 +688,10 @@ document.addEventListener('DOMContentLoaded', () => {
     previewModeBtn.addEventListener('click', switchToPreviewMode);
     saveBtn.addEventListener('click', saveToCookie);
     editor.addEventListener('input', updatePreview);
+    const timeDisplay = document.getElementById('time-display');
+    const dateDisplay = document.getElementById('date-display');
+    timeDisplay.addEventListener('click', handleTimeClick);
+    dateDisplay.addEventListener('click', handleTimeClick);
     
     // 键盘快捷键处理
     editor.addEventListener('keydown', (e) => {
@@ -687,7 +819,9 @@ function loadFromCookie() {
         // 如果没有保存的内容，设置默认内容
         editor.value = `# 欢迎使用 Markdown 编辑器
 
-这是一个功能丰富的 Markdown 编辑器，支持多种特殊标签[【查看教程】](https://yuyudifiesh.github.io/tabs/docs/teach.html)
+这是一个功能丰富的 Markdown 编辑器，支持多种特殊标签[【查看教程】](./docs/teach.html)
+
+强烈建议您先阅读教程再开始使用
 
 ## 编辑器功能
 
@@ -706,15 +840,9 @@ function loadFromCookie() {
 - 西藏 >>> xizang
 - 台湾省 >>> taiwan
 
-## 数据源
-气温数据：OpenWeather
-股票行情：山西麦蕊智数软件科技有限公司
-页面背景：bing_wallpaper
-搜索引擎：Bing
-
 开始创建你的笔记吧！`;
     } catch (error) {
         console.error('从Cookie加载失败:', error);
         editor.value = '# 无法加载保存的内容\n\n请尝试重新输入。';
     }
-}
+} 
