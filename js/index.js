@@ -687,7 +687,7 @@ function loadFromCookie() {
         // 如果没有保存的内容，设置默认内容
         editor.value = `# 欢迎使用 Markdown 编辑器
 
-这是一个功能丰富的 Markdown 编辑器，支持多种特殊标签[【查看教程】](https://sysyzspublic.github.io/tab/docs/teach.html)
+这是一个功能丰富的 Markdown 编辑器，支持多种特殊标签[【查看教程】](https://yuyudifiesh.github.io/tabs/docs/teach.html)
 
 ## 编辑器功能
 
