@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NewTab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.2.12/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.min.css" rel="stylesheet">
+    <script src="https://sysyzspublic.github.io/tab/js/tailwind.js"></script>
+    <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js"></script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .poem-container {
+                border-left: 4px solid rgba(255, 255, 255, 0.3);
+                padding: 1rem;
+                margin: 1rem 0;
+                background-color: rgba(255, 255, 255, 0.05);
+                border-radius: 0.5rem;
+            }
+            .poem-content {
+                font-style: italic;
+                margin-bottom: 0.5rem;
+            }
+            .poem-origin, .poem-author {
+                font-size: 0.85rem;
+                color: rgba(255, 255, 255, 0.7);
+            }
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 4px 8px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.15);
+            }
+            .bg-gradient {
+                background: linear-gradient(135deg, #f5f7fa 0%, #e4e6eb 100%);
+            }
+            .transition-custom {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .mica-effect {
+                backdrop-filter: blur(24px);
+                background-color: rgba(255, 255, 255, 0.1);
+                background-image: 
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01)),
+                    linear-gradient(to right, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.0));
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            }
+            .scrollbar-thin {
+                scrollbar-width: thin;
+            }
+            .scrollbar-thin::-webkit-scrollbar {
+                width: 6px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb {
+                background-color: rgba(255, 255, 255, 0.2);
+                border-radius: 3px;
+            }
+            .markdown-preview h1 {
+                font-size: 1.8rem;
+                font-weight: bold;
+                margin-bottom: 0.5rem;
+            }
+            .markdown-preview h2 {
+                font-size: 1.5rem;
+                font-weight: bold;
+                margin-bottom: 0.5rem;
+            }
+            .markdown-preview h3 {
+                font-size: 1.25rem;
+                font-weight: bold;
+                margin-bottom: 0.5rem;
+            }
+            .markdown-preview p {
+                margin-bottom: 1rem;
+            }
+            .markdown-preview ul, .markdown-preview ol {
+                margin-left: 1.5rem;
+                margin-bottom: 1rem;
+            }
+            .markdown-preview ul {
+                list-style-type: disc;
+            }
+            .markdown-preview ol {
+                list-style-type: decimal;
+            }
+            .markdown-preview blockquote {
+                border-left: 4px solid rgba(255, 255, 255, 0.3);
+                padding-left: 1rem;
+                margin-left: 0;
+                margin-bottom: 1rem;
+                color: rgba(255, 255, 255, 0.8);
+            }
+            .markdown-preview code {
+                font-family: 'Fira Code', monospace;
+                background-color: rgba(0, 0, 0, 0.1);
+                padding: 0.1rem 0.3rem;
+                border-radius: 0.2rem;
+            }
+            .markdown-preview pre {
+                background-color: rgba(0, 0, 0, 0.2);
+                padding: 1rem;
+                border-radius: 0.5rem;
+                margin-bottom: 1rem;
+                overflow-x: auto;
+            }
+            .markdown-preview pre code {
+                background-color: transparent;
+                padding: 0;
+            }
+            .markdown-preview a {
+                color: #42a5f5;
+                text-decoration: underline;
+            }
+            .markdown-preview img {
+                max-width: 100%;
+                height: auto;
+                margin: 1rem 0;
+                border-radius: 0.5rem;
+            }
+            .time-separator {
+                position: relative;
+                top: -0.1em;
+            }
+            .editor-tab-active {
+                background-color: rgba(255, 255, 255, 0.15);
+                color: white !important;
+            }
+            .countdown-tag {
+                display: inline-block;
+                padding: 0.1rem 0.5rem;
+                border-radius: 0.3rem;
+                margin: 0 0.2rem;
+                font-weight: 600;
+            }
+            .countdown-future {
+                background-color: rgba(22, 93, 255, 0.2);
+                color: #8ab4f8;
+            }
+            .countdown-past {
+                background-color: rgba(0, 180, 42, 0.2);
+                color: #86e29a;
+            }
+            .non-selectable {
+                user-select: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                cursor: default;
+            }
+            .email-link {
+                color: #42a5f5;
+                text-decoration: underline;
+                cursor: pointer;
+            }
+            .weather-tag {
+                display: inline-block;
+                padding: 0.1rem 0.5rem;
+                border-radius: 0.3rem;
+                margin: 0 0.2rem;
+                font-weight: 600;
+                background-color: rgba(255, 140, 0, 0.2);
+                color: #ffb74d;
+            }
+            .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            .hide-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            body {
+                overflow: hidden;
+                height: 100vh;
+                margin: 0;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="font-inter min-h-screen flex flex-col items-center justify-center p-4 non-selectable"
+    style="background-image: url(https://bing.shangzhenyang.com/api/1080p); background-size: cover; background-position: center;">
+    <!-- 时间显示 -->
+    <div class="mb-6 text-center">
+        <div id="time-display"
+            class="text-[clamp(3.5rem,12vw,6rem)] font-bold text-white text-shadow transition-custom">12<span
+                class="time-separator">:</span>00</div>
+        <div id="date-display" class="text-white/80 text-lg mt-2 transition-custom">日期获取失败</div>
+    </div>
+
+    <!-- 搜索框 -->
+    <div class="w-full max-w-2xl mb-8">
+        <div class="relative group">
+            <input type="text" placeholder="搜索 Bing"
+                class="w-full py-4 px-6 rounded-full mica-effect text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/50 transition-custom hover:shadow-custom-hover"
+                id="search-input">
+        </div>
+    </div>
+
+    <!-- Markdown 笔记容器 -->
+    <div
+        class="w-full max-w-2xl mica-effect rounded-xl overflow-hidden transition-custom hover:shadow-custom-hover mb-8">
+        <div class="flex border-b border-white/10">
+            <button id="edit-mode-btn" class="py-3 px-4 text-white/60 hover:text-white transition-custom">编辑</button>
+            <button id="preview-mode-btn"
+                class="py-3 px-4 text-white/80 hover:text-white transition-custom editor-tab-active">预览</button>
+            <div class="ml-auto flex items-center px-4">
+                <span id="save-status" class="text-white/60 text-sm mr-2 hidden">已保存</span>
+                <button id="save-btn" class="p-2 text-white/60 hover:text-white transition-custom">
+                    <i class="fa-solid fa-save"></i>
+                </button>
+            </div>
+        </div>
+        <div class="relative h-[300px]">
+            <textarea id="markdown-editor"
+                class="absolute inset-0 w-full h-full p-4 bg-transparent text-white font-mono resize-none scrollbar-thin focus:outline-none hide-scrollbar"
+                placeholder="在此输入Markdown文本...&#10;Ctrl+S 保存"></textarea>
+            <div id="markdown-preview"
+                class="absolute inset-0 w-full h-full p-4 bg-transparent text-white overflow-y-auto scrollbar-thin markdown-preview non-selectable hide-scrollbar">
+            </div>
+        </div>
+    </div>
+
+    <script src="https://sysyzspublic.github.io/tab/js/index.js"></script>
+</body>
+
+</html>
