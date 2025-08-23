@@ -456,7 +456,6 @@ function generateHelpInfo() {
     return `【疑难解答】
 [Version]${VERSION}
 [功能代码教程]<a href="https://yuyudifiesh.github.io/tabs/docs/teach.html">点击查看</a>
-[联系我们]sysyzspublic@outlook.com
 `;
 }
     
@@ -846,3 +845,4 @@ function loadFromCookie() {
         editor.value = '# 无法加载保存的内容\n\n请尝试重新输入。';
     }
 } 
+
